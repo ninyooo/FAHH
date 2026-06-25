@@ -1,7 +1,7 @@
 (() => {
   const INACTIVITY_THRESHOLD_MS = 5 * 60 * 1000;
   const CHECK_INTERVAL_MS = 1000;
-  const CONFIRM_PHRASE = "i promise not to doomscroll";
+  const CONFIRM_PHRASE = "i promise not to doomscroll uwu";
   const REQUIRED_CONFIRMATIONS = 3;
   const ACTIVITY_EVENTS = [
     "mousemove",
@@ -23,7 +23,7 @@
     try {
       port = chrome.runtime.connect({ name: "fahh" });
       port.onMessage.addListener((msg) => {
-        if (msg.type === "lastActivity") {
+        if (msg.type === "lastActivity" && msg.value > globalLastActivity) {
           globalLastActivity = msg.value;
         }
       });
@@ -58,7 +58,7 @@
   }
 
   function promptText() {
-    return `Type "${CONFIRM_PHRASE}" ${REQUIRED_CONFIRMATIONS} times to continue (${confirmCount}/${REQUIRED_CONFIRMATIONS})`;
+    return `type "${CONFIRM_PHRASE}" ${REQUIRED_CONFIRMATIONS} times to continue (${confirmCount}/${REQUIRED_CONFIRMATIONS})`;
   }
 
   function showOverlay() {
@@ -125,7 +125,7 @@
         prompt.textContent = promptText();
       }
     } else {
-      error.textContent = "Not quite — try again.";
+      error.textContent = "NUH UH YOU IDIOT SANDWICH — try again.";
     }
   }
 
