@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "FAHH - Stay Active",
+  "version": "1.0.0",
+  "description": "Plays a sound and shows an image after 5 minutes of inactivity on a page, until you type a confirmation phrase three times.",
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["overlay.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["assets/fahh.png", "assets/fahh.mp3"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
