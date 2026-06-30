@@ -1,7 +1,9 @@
 (() => {
-  const INACTIVITY_THRESHOLD_MS = 5 * 60 * 1000;
+  if (window.__fahhLoaded) return;
+  window.__fahhLoaded = true;
+  const INACTIVITY_THRESHOLD_MS = 5 * 1000;
   const CHECK_INTERVAL_MS = 1000;
-  const CONFIRM_PHRASE = "i promise not to doomscroll uwu";
+  const CONFIRM_PHRASE = "i promise not to doomscroll";
   const REQUIRED_CONFIRMATIONS = 3;
   const ACTIVITY_EVENTS = [
     "mousemove",
@@ -12,47 +14,21 @@
     "touchstart",
   ];
 
-  let globalLastActivity = Date.now();
+  let lastActivity = Date.now();
   let overlayVisible = false;
   let confirmCount = 0;
   let audio = null;
   let overlayEl = null;
-  let port = null;
-
-  function connectPort() {
-    try {
-      port = chrome.runtime.connect({ name: "fahh" });
-      port.onMessage.addListener((msg) => {
-        if (msg.type === "lastActivity" && msg.value > globalLastActivity) {
-          globalLastActivity = msg.value;
-        }
-      });
-      port.onDisconnect.addListener(() => {
-        port = null;
-      });
-    } catch (e) {
-      port = null;
-    }
-  }
-
-  connectPort();
 
   function onActivity() {
     if (overlayVisible) return;
-    globalLastActivity = Date.now();
-    if (port) {
-      try {
-        port.postMessage({ type: "activity" });
-      } catch (e) {
-        port = null;
-      }
-    }
+    lastActivity = Date.now();
   }
 
   function checkInactivity() {
     if (overlayVisible) return;
-    if (!port) connectPort();
-    if (Date.now() - globalLastActivity >= INACTIVITY_THRESHOLD_MS) {
+    if (document.hidden) return;
+    if (Date.now() - lastActivity >= INACTIVITY_THRESHOLD_MS) {
       showOverlay();
     }
   }
@@ -141,9 +117,13 @@
     }
     document.body.style.overflow = "";
     overlayVisible = false;
-    globalLastActivity = Date.now();
+    lastActivity = Date.now();
   }
 
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) onActivity();
+  });
+  window.addEventListener("focus", onActivity);
   ACTIVITY_EVENTS.forEach((evt) =>
     document.addEventListener(evt, onActivity, { passive: true }),
   );

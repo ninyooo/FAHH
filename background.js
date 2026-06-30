@@ -1,23 +1,21 @@
-let globalLastActivity = Date.now();
-const ports = new Set();
-
-chrome.runtime.onConnect.addListener((port) => {
-  ports.add(port);
-
-  port.onMessage.addListener((msg) => {
-    if (msg.type === "activity") {
-      globalLastActivity = Date.now();
-      for (const p of ports) {
-        try {
-          p.postMessage({ type: "lastActivity", value: globalLastActivity });
-        } catch (e) {
-          ports.delete(p);
-        }
-      }
+async function injectContentScripts() {
+  const tabs = await chrome.tabs.query({});
+  for (const tab of tabs) {
+    try {
+      await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        files: ["content.js"],
+      });
+      await chrome.scripting.insertCSS({
+        target: { tabId: tab.id },
+        files: ["overlay.css"],
+      });
+    } catch (e) {
+      // Skip restricted tabs (chrome://, about:, etc.)
     }
-  });
+  }
+}
 
-  port.onDisconnect.addListener(() => {
-    ports.delete(port);
-  });
-});
+chrome.runtime.onInstalled.addListener(injectContentScripts);
+chrome.runtime.onStartup.addListener(injectContentScripts);
+injectContentScripts();
