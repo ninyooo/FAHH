@@ -32,14 +32,16 @@
       });
       window.addEventListener("focus", () => this._onActivity());
       this.config.activityEvents.forEach((evt) =>
-        document.addEventListener(evt, () => this._onActivity(), { passive: true })
+        document.addEventListener(evt, () => this._onActivity(), {
+          passive: true,
+        }),
       );
     }
 
     _startTimer() {
       this._checkTimer = setInterval(
         () => this._checkInactivity(),
-        this.config.checkInterval
+        this.config.checkInterval,
       );
     }
 
@@ -152,7 +154,7 @@
   }
 
   const app = new FahhApp({
-    threshold: 5 * 1000,
+    threshold: 5 * 60 * 1000,
     checkInterval: 1000,
     confirmPhrase: "i promise not to doomscroll",
     requiredConfirmations: 3,
